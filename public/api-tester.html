@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Training API Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .response { margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
+        .token-info { background: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Training Management API Tester</h1>
+        
+        <!-- Login Section -->
+        <div class="card">
+            <h2>1. Login</h2>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" id="email" value="admin@company.com">
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" value="password123">
+            </div>
+            <button onclick="login()">Login</button>
+            
+            <div id="tokenInfo" class="token-info" style="display: none;">
+                <strong>Access Token:</strong> <span id="tokenValue"></span>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>2. Dashboard Statistics</h2>
+            <button onclick="getDashboard()">Get Dashboard Stats</button>
+        </div>
+
+        <!-- Employees Section -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>3. Employees</h2>
+            <button onclick="getEmployees()">Get All Employees</button>
+            <button onclick="getEmployeeDepartments()" style="margin-left: 10px;">Get Departments</button>
+        </div>
+
+        <!-- Trainings Section -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>4. Trainings</h2>
+            <button onclick="getTrainings()">Get All Trainings</button>
+            <button onclick="getUpcomingTrainings()" style="margin-left: 10px;">Get Upcoming</button>
+        </div>
+
+        <!-- Response Section -->
+        <div class="response">
+            <h3>API Response:</h3>
+            <pre id="response">Click any button above to test the API...</pre>
+        </div>
+
+        <!-- Demo Accounts -->
+        <div style="margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 4px;">
+            <h3>Demo Accounts:</h3>
+            <ul>
+                <li><strong>Admin:</strong> admin@company.com / password123</li>
+                <li><strong>HR Manager:</strong> hr@company.com / password123</li>
+                <li><strong>Supervisor:</strong> supervisor@company.com / password123</li>
+                <li><strong>Employee:</strong> employee@company.com / password123</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        let authToken = '';
+
+        function showResponse(data, isError = false) {
+            const responseEl = document.getElementById('response');
+            responseEl.textContent = JSON.stringify(data, null, 2);
+            responseEl.parentElement.className = isError ? 'response error' : 'response success';
+        }
+
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                const defaultOptions = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    }
+                };
+
+                if (authToken) {
+                    defaultOptions.headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showResponse(data, true);
+                    return null;
+                }
+
+                showResponse(data);
+                return data;
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+                return null;
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            const data = await makeRequest('/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+
+            if (data && data.success) {
+                authToken = data.data.access_token;
+                document.getElementById('tokenValue').textContent = authToken.substring(0, 50) + '...';
+                document.getElementById('tokenInfo').style.display = 'block';
+            }
+        }
+
+        async function getDashboard() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            await makeRequest('/dashboard');
+        }
+
+        async function getEmployees() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            await makeRequest('/employees');
+        }
+
+        async function getEmployeeDepartments() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            await makeRequest('/employees-departments');
+        }
+
+        async function getTrainings() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            await makeRequest('/trainings');
+        }
+
+        async function getUpcomingTrainings() {
+            if (!authToken) {
+                alert('Please login first!');
+                return;
+            }
+            await makeRequest('/dashboard/upcoming-trainings');
+        }
+    </script>
+</body>
+</html>

@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('employee_id')->unique();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('department');
+            $table->string('position');
+            $table->date('hire_date');
+            $table->boolean('is_active')->default(true);
+            $table->json('metadata')->nullable(); // Additional employee data
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
