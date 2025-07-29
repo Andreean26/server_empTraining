@@ -46,10 +46,10 @@ class DashboardController extends Controller
             ->groupBy('department')
             ->get();
 
-        // Monthly training completion trend (SQLite compatible)
+        // Monthly training completion trend (MySQL compatible)
         $monthlyCompletions = TrainingEnrollment::select(
-                DB::raw('strftime("%Y", completed_at) as year'),
-                DB::raw('strftime("%m", completed_at) as month'),
+                DB::raw('YEAR(completed_at) as year'),
+                DB::raw('MONTH(completed_at) as month'),
                 DB::raw('COUNT(*) as total')
             )
             ->where('status', 'completed')

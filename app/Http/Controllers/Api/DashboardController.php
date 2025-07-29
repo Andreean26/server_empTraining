@@ -94,8 +94,8 @@ class DashboardController extends Controller
     public function monthlyCompletions()
     {
         $monthlyCompletions = TrainingEnrollment::select(
-                DB::raw('strftime("%Y", completed_at) as year'),
-                DB::raw('strftime("%m", completed_at) as month'),
+                DB::raw('YEAR(completed_at) as year'),
+                DB::raw('MONTH(completed_at) as month'),
                 DB::raw('COUNT(*) as total')
             )
             ->where('status', 'completed')
@@ -157,7 +157,7 @@ class DashboardController extends Controller
     {
         $completionRates = DB::table('training_enrollments')
             ->select(
-                DB::raw('strftime("%Y-%m", enrolled_at) as month'),
+                DB::raw('DATE_FORMAT(enrolled_at, "%Y-%m") as month'),
                 DB::raw('COUNT(*) as total_enrolled'),
                 DB::raw('SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) as total_completed'),
                 DB::raw('ROUND((SUM(CASE WHEN status = "completed" THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as completion_rate')

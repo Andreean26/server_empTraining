@@ -412,13 +412,7 @@ Logout from all devices.
 
 ## Database Configuration
 
-### For SQLite (Current)
-```env
-DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database.sqlite
-```
-
-### For MySQL (Production Ready)
+### For MySQL (Current Setup)
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -426,6 +420,12 @@ DB_PORT=3306
 DB_DATABASE=emp_training_db
 DB_USERNAME=root
 DB_PASSWORD=your_password
+```
+
+### For SQLite (Development Alternative)
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/absolute/path/to/database.sqlite
 ```
 
 ## Installation & Setup
@@ -445,11 +445,11 @@ php artisan key:generate
 
 3. **Database Setup**
 ```bash
-# For SQLite
-touch database/database.sqlite
-
-# For MySQL
+# For MySQL (Current Setup)
 mysql -u root -p -e "CREATE DATABASE emp_training_db;"
+
+# For SQLite (Alternative)
+touch database/database.sqlite
 ```
 
 4. **Run Migrations**
