@@ -30,8 +30,7 @@ class EmployeeController extends Controller
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
+                $q->where('name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             });
         }
@@ -53,8 +52,7 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email',
             'phone' => 'nullable|string|max:20',
             'department' => 'required|string|max:255',
@@ -116,8 +114,7 @@ class EmployeeController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:employees,email,' . $id,
             'phone' => 'nullable|string|max:20',
             'department' => 'required|string|max:255',
