@@ -59,4 +59,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/trainings/{training_id}/enrollments', [TrainingEnrollmentController::class, 'byTraining']);
     Route::get('/employees/{employee_id}/enrollments', [TrainingEnrollmentController::class, 'byEmployee']);
     
+    // Role routes
+    Route::apiResource('roles', \App\Http\Controllers\Api\RoleController::class);
+    Route::get('/roles/{id}/permissions', [\App\Http\Controllers\Api\RoleController::class, 'permissions']);
+    Route::put('/roles/{id}/permissions', [\App\Http\Controllers\Api\RoleController::class, 'updatePermissions']);
+    
+    // User routes
+    Route::apiResource('users', \App\Http\Controllers\Api\UserController::class);
+    Route::post('/users/{id}/toggle-status', [\App\Http\Controllers\Api\UserController::class, 'toggleStatus']);
+    Route::post('/users/{id}/reset-password', [\App\Http\Controllers\Api\UserController::class, 'resetPassword']);
+    Route::get('/users/by-role/{roleId}', [\App\Http\Controllers\Api\UserController::class, 'byRole']);
+    Route::get('/users-statistics', [\App\Http\Controllers\Api\UserController::class, 'statistics']);
+    
 });

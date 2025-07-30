@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class RoleController extends Controller
 {
@@ -11,7 +14,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        //
+        $roles = Role::with('users')->paginate(15);
+        
+        return view('roles.index', compact('roles'));
     }
 
     /**
@@ -19,7 +24,7 @@ class RoleController extends Controller
      */
     public function create()
     {
-        //
+        return view('roles.create');
     }
 
     /**
@@ -27,7 +32,30 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:roles,name',
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'nullable|array',
+            'is_active' => 'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                           ->withErrors($validator)
+                           ->withInput();
+        }
+
+        Role::create([
+            'name' => $request->name,
+            'display_name' => $request->display_name,
+            'description' => $request->description,
+            'permissions' => $request->permissions ?? [],
+            'is_active' => $request->has('is_active')
+        ]);
+
+        return redirect()->route('roles.index')
+                        ->with('success', 'Role created successfully.');
     }
 
     /**
@@ -35,7 +63,9 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $role = Role::with('users')->findOrFail($id);
+        
+        return view('roles.show', compact('role'));
     }
 
     /**
@@ -43,7 +73,9 @@ class RoleController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+        
+        return view('roles.edit', compact('role'));
     }
 
     /**
@@ -51,7 +83,32 @@ class RoleController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:roles,name,' . $id,
+            'display_name' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'permissions' => 'nullable|array',
+            'is_active' => 'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                           ->withErrors($validator)
+                           ->withInput();
+        }
+
+        $role->update([
+            'name' => $request->name,
+            'display_name' => $request->display_name,
+            'description' => $request->description,
+            'permissions' => $request->permissions ?? [],
+            'is_active' => $request->has('is_active')
+        ]);
+
+        return redirect()->route('roles.index')
+                        ->with('success', 'Role updated successfully.');
     }
 
     /**
@@ -59,6 +116,17 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $role = Role::findOrFail($id);
+        
+        // Check if role is being used by users
+        if ($role->users()->count() > 0) {
+            return redirect()->back()
+                           ->with('error', 'Cannot delete role that is assigned to users.');
+        }
+
+        $role->delete();
+
+        return redirect()->route('roles.index')
+                        ->with('success', 'Role deleted successfully.');
     }
 }

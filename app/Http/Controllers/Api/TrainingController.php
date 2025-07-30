@@ -66,11 +66,15 @@ class TrainingController extends Controller
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'trainer_name' => 'required|string|max:255',
+            'trainer_email' => 'nullable|email|max:255',
             'training_date' => 'required|date|after_or_equal:today',
-            'duration_hours' => 'required|integer|min:1|max:24',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'location' => 'nullable|string|max:255',
             'max_participants' => 'required|integer|min:1',
-            'location' => 'required|string|max:255',
-            'pdf_file' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
+            'pdf_material' => 'nullable|file|mimes:pdf|max:10240', // 10MB max
+            'additional_info' => 'nullable|array'
         ]);
 
         if ($validator->fails()) {
@@ -81,15 +85,15 @@ class TrainingController extends Controller
             ], 422);
         }
 
-        $data = $request->except('pdf_file');
+        $data = $request->except('pdf_material');
         $data['created_by'] = auth()->id();
 
         // Handle PDF upload
-        if ($request->hasFile('pdf_file')) {
-            $file = $request->file('pdf_file');
+        if ($request->hasFile('pdf_material')) {
+            $file = $request->file('pdf_material');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('training_materials', $filename, 'public');
-            $data['pdf_path'] = $path;
+            $data['pdf_material'] = $path;
         }
 
         $training = Training::create($data);
