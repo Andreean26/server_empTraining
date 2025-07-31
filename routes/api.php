@@ -70,5 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{id}/reset-password', [\App\Http\Controllers\Api\UserController::class, 'resetPassword']);
     Route::get('/users/by-role/{roleId}', [\App\Http\Controllers\Api\UserController::class, 'byRole']);
     Route::get('/users-statistics', [\App\Http\Controllers\Api\UserController::class, 'statistics']);
+    Route::get('/users/{id}/employee', [\App\Http\Controllers\Api\UserController::class, 'getEmployee']);
+    Route::get('/users-with-employees', [\App\Http\Controllers\Api\UserController::class, 'usersWithEmployees']);
     
 });

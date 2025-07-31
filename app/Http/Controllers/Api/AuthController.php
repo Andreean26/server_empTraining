@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -37,6 +39,12 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role_id' => $request->role_id,
         ]);
+
+        // Load role relationship after creation
+        $user->load('role');
+
+        // Auto-create employee record if user registers with Employee role
+        $this->createEmployeeIfNeeded($user);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -194,5 +202,33 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Logged out from all devices successfully'
         ]);
+    }
+
+    /**
+     * Auto-create employee record if user has Employee role
+     */
+    private function createEmployeeIfNeeded(User $user)
+    {
+        // Check if user has Employee role (role_id = 3 for Employee role)
+        if ($user->role_id == 3) {
+            // Generate employee_id format: EMP + timestamp
+            $employeeId = 'EMP' . now()->format('YmdHis');
+            
+            // Ensure employee_id is unique
+            while (Employee::where('employee_id', $employeeId)->exists()) {
+                $employeeId = 'EMP' . now()->format('YmdHis') . rand(10, 99);
+            }
+
+            Employee::create([
+                'user_id' => $user->id,
+                'employee_id' => $employeeId,
+                'name' => $user->name,
+                'email' => $user->email,
+                'department' => 'General', // Default department
+                'position' => 'Employee', // Default position
+                'hire_date' => now(),
+                'is_active' => true,
+            ]);
+        }
     }
 }

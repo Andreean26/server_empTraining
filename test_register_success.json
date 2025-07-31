@@ -1,0 +1,7 @@
+{
+    "name": "Success Employee Test",
+    "email": "success.employee.test.2025@example.com",
+    "password": "password123",
+    "password_confirmation": "password123",
+    "role_id": 3
+}

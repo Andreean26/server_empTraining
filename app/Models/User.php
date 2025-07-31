@@ -74,6 +74,22 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
+    /**
+     * Relationship with Employee model
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    /**
+     * Check if user has Employee role
+     */
+    public function isEmployee()
+    {
+        return $this->role && $this->role->name === 'Employee';
+    }
+
     public function createdTrainings()
     {
         return $this->hasMany(Training::class, 'created_by');

@@ -309,4 +309,46 @@ class UserController extends Controller
             'data' => $stats
         ]);
     }
+
+    /**
+     * Get user's employee record
+     */
+    public function getEmployee($id)
+    {
+        try {
+            $user = User::with(['role', 'employee'])->findOrFail($id);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => $user,
+                    'has_employee_record' => !is_null($user->employee),
+                    'employee' => $user->employee
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+    }
+
+    /**
+     * Get all users with their employee records
+     */
+    public function usersWithEmployees()
+    {
+        $users = User::with(['role', 'employee'])
+                    ->whereHas('role', function($query) {
+                        $query->where('name', 'Employee');
+                    })
+                    ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+            'total' => $users->count()
+        ]);
+    }
 }

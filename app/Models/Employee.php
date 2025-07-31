@@ -13,15 +13,21 @@ class Employee extends Model
 
     protected $fillable = [
         'uuid',
+        'user_id',
         'employee_id',
         'name',
         'email',
         'phone',
+        'address',
         'department',
         'position',
         'hire_date',
+        'salary',
+        'status',
         'is_active',
-        'metadata'
+        'emergency_contact_name',
+        'emergency_contact_phone',
+        'notes'
     ];
 
     protected $casts = [
@@ -45,6 +51,14 @@ class Employee extends Model
                 $model->employee_id = 'EMP' . str_pad(Employee::max('id') + 1, 4, '0', STR_PAD_LEFT);
             }
         });
+    }
+
+    /**
+     * Relationship with User model
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function trainingEnrollments()
